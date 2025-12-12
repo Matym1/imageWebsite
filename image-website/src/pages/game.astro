@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+---
+
+---
+
 <html lang="en-us">
   <head>
     <meta charset="utf-8">
@@ -24,7 +27,7 @@
       </div>
     </div>
     <script>
-      var canvas = document.querySelector("#unity-canvas");
+      var canvas:HTMLElement | null = document.querySelector("#unity-canvas");
 
       // Shows a temporary message banner/ribbon for a few seconds, or
       // a permanent error message on top of the canvas if type=='error'.
@@ -32,9 +35,10 @@
       // Modify or remove this function to customize the visually presented
       // way that non-critical warnings and error messages are presented to the
       // user.
-      function unityShowBanner(msg, type) {
-        var warningBanner = document.querySelector("#unity-warning");
+      function unityShowBanner(msg:string, type:string) {
+        var warningBanner = document.querySelector("#unity-warning") as HTMLElement;
         function updateBannerVisibility() {
+          if(!warningBanner) return;
           warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
         }
         var div = document.createElement('div');
@@ -88,30 +92,43 @@
         meta.name = 'viewport';
         meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
         document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
+        
+        var unity_container: HTMLElement | null = document.querySelector("#unity-container");
+        if (unity_container) {
+        unity_container.className = "unity-mobile";
+        }
+        if(canvas){
+          canvas.className = "unity-mobile";
+        }
 
         // To lower canvas resolution on mobile devices to gain some
         // performance, uncomment the following line:
         // config.devicePixelRatio = 1;
 
 
-      } else {
+      } else if(canvas) {
         // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
         canvas.style.width = "960px";
         canvas.style.height = "600px";
       }
-
-      document.querySelector("#unity-loading-bar").style.display = "block";
+      var loading_bar: HTMLElement | null = document.querySelector("#unity-loading-bar");
+      if (loading_bar) 
+      loading_bar.style.display = "block";
 
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+        createUnityInstance(canvas, config, (progress:any) => {
+          var progressBarFull: HTMLElement | null = document.querySelector("#unity-progress-bar-full");
+          if (progressBarFull)
+          progressBarFull.style.width = (100.0 * progress).toString() + "%";
               }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
+                var loading_bar: HTMLElement | null = document.querySelector("#unity-loading-bar");
+                if (loading_bar) 
+                loading_bar.style.display = "none";
+              var fullscreenButton: HTMLElement | null = document.querySelector("#unity-fullscreen-button");
+                if (fullscreenButton)
+                fullscreenButton.onclick = () => {
                   unityInstance.SetFullscreen(1);
                 };
 
